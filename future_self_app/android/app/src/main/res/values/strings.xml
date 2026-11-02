@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_description">用于检测被限额的应用并展示拦截页，不读取屏幕内容。</string>
+</resources>

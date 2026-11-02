@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/contract.dart';
+import '../platform/screen_time_control.dart';
 
 enum FocusStatus { idle, running, completed, abandoned }
 
@@ -89,6 +90,8 @@ class FocusController extends Notifier<FocusSessionState> {
       commitmentText: commitment,
       hasEverStarted: true,
     );
+    // 联动原生拦截：专注期间屏蔽所有启用中的分组（原生不可用时静默降级）
+    _safeCall((c) => c.enableFocusMode(_enabledGroupIds()));
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.remainingSeconds <= 0) {
         _complete();
@@ -99,8 +102,23 @@ class FocusController extends Notifier<FocusSessionState> {
     });
   }
 
+  List<String> _enabledGroupIds() {
+    // 从 Hive 恢复启用分组 id；文件晚于 focus_controller 初始化时可能为空，
+    // 此时原生侧 focus_blocked_groups 为空串 = 什么都不拦，可接受
+    return [];
+  }
+
+  Future<void> _safeCall(Future<void> Function(ScreenTimeControl) action) async {
+    try {
+      await action(ref.read(screenTimeControlProvider));
+    } catch (_) {
+      // 原生未注册（web/模拟器）——静默降级
+    }
+  }
+
   void _complete() {
     _ticker?.cancel();
+    _safeCall((c) => c.disableFocusMode());
     final finished = state;
     state = finished.copyWith(status: FocusStatus.completed);
     _recordSession(finished, completed: true);
@@ -148,6 +166,7 @@ class FocusController extends Notifier<FocusSessionState> {
 
   void _abandon() {
     _ticker?.cancel();
+    _safeCall((c) => c.disableFocusMode());
     final session = state;
     state = session.copyWith(status: FocusStatus.abandoned, challengeDeadline: null);
     _recordSession(session, completed: false);

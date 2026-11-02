@@ -10,6 +10,8 @@ import 'pages/onboarding/contract_sign_page.dart';
 import 'pages/focus/focus_start_page.dart';
 import 'pages/focus/focus_active_page.dart';
 import 'pages/focus/exit_challenge_page.dart';
+import 'pages/control/permission_guide_page.dart';
+import 'pages/control/limits_page.dart';
 import 'state/onboarding_controller.dart';
 
 Future<void> main() async {
@@ -72,6 +74,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/focus/exit-challenge',
         builder: (_, _) => const ExitChallengePage(),
+      ),
+      GoRoute(
+        path: '/permissions',
+        builder: (_, _) => const PermissionGuidePage(),
+      ),
+      GoRoute(
+        path: '/limits',
+        builder: (_, _) => const LimitsPage(),
       ),
     ],
   );
