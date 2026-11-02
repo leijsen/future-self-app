@@ -7,6 +7,8 @@ import 'pages/home_page.dart';
 import 'pages/onboarding/past_self_page.dart';
 import 'pages/onboarding/future_self_page.dart';
 import 'pages/onboarding/contract_sign_page.dart';
+import 'pages/focus/focus_start_page.dart';
+import 'pages/focus/focus_active_page.dart';
 import 'state/onboarding_controller.dart';
 
 Future<void> main() async {
@@ -57,6 +59,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (_, _) => const HomePage(),
+      ),
+      GoRoute(
+        path: '/focus',
+        builder: (_, _) => const FocusStartPage(),
+      ),
+      GoRoute(
+        path: '/focus/active',
+        builder: (_, _) => const FocusActivePage(),
       ),
     ],
   );
