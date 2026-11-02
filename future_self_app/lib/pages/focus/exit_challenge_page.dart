@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../models/contract.dart';
 import '../../state/focus_controller.dart';
@@ -50,7 +51,7 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
   void _giveUpExit() {
     // 用户认输放弃退出 → 关闭挑战页回去继续专注
     ref.read(focusProvider.notifier).cancelChallenge();
-    Navigator.of(context).pop();
+    context.go('/focus/active');
   }
 
   @override
@@ -58,6 +59,15 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
     final state = ref.watch(focusProvider);
     final isStrict = state.exitChallengeLevel == ExitChallengeLevel.strict;
     final countdownDone = state.challengeRemaining <= Duration.zero;
+
+    // 会话已放弃 → 回首页（由 FocusActivePage 的 SnackBar 提示结果）
+    if (state.status == FocusStatus.abandoned ||
+        state.status == FocusStatus.idle) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(focusProvider.notifier).reset();
+        if (context.mounted) context.go('/home');
+      });
+    }
 
     return PopScope(
       canPop: false,

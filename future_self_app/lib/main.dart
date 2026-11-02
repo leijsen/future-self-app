@@ -9,6 +9,7 @@ import 'pages/onboarding/future_self_page.dart';
 import 'pages/onboarding/contract_sign_page.dart';
 import 'pages/focus/focus_start_page.dart';
 import 'pages/focus/focus_active_page.dart';
+import 'pages/focus/exit_challenge_page.dart';
 import 'state/onboarding_controller.dart';
 
 Future<void> main() async {
@@ -67,6 +68,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/focus/active',
         builder: (_, _) => const FocusActivePage(),
+      ),
+      GoRoute(
+        path: '/focus/exit-challenge',
+        builder: (_, _) => const ExitChallengePage(),
       ),
     ],
   );

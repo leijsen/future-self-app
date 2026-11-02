@@ -15,6 +15,7 @@ class FocusSessionState {
     this.exitChallengeLevel = ExitChallengeLevel.firm,
     this.challengeDeadline,
     this.commitmentText,
+    this.hasEverStarted = false,
   });
 
   final FocusStatus status;
@@ -26,6 +27,11 @@ class FocusSessionState {
   final ExitChallengeLevel exitChallengeLevel;
   final String? commitmentText;
 
+  /// 本次 App 运行期间是否启动过会话。
+  /// 用于区分"从未启动（刷新后状态丢失）"与"会话结束后 reset 归零"，
+  /// 防止 idle 弹回逻辑劫持刚结束的会话跳转。
+  final bool hasEverStarted;
+
   FocusSessionState copyWith({
     FocusStatus? status,
     DateTime? startedAt,
@@ -33,6 +39,7 @@ class FocusSessionState {
     DateTime? challengeDeadline,
     ExitChallengeLevel? exitChallengeLevel,
     String? commitmentText,
+    bool? hasEverStarted,
   }) {
     return FocusSessionState(
       status: status ?? this.status,
@@ -41,6 +48,7 @@ class FocusSessionState {
       challengeDeadline: challengeDeadline ?? this.challengeDeadline,
       exitChallengeLevel: exitChallengeLevel ?? this.exitChallengeLevel,
       commitmentText: commitmentText ?? this.commitmentText,
+      hasEverStarted: hasEverStarted ?? this.hasEverStarted,
     );
   }
 
@@ -79,6 +87,7 @@ class FocusController extends Notifier<FocusSessionState> {
       plannedMinutes: minutes,
       exitChallengeLevel: level,
       commitmentText: commitment,
+      hasEverStarted: true,
     );
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.remainingSeconds <= 0) {
@@ -133,6 +142,7 @@ class FocusController extends Notifier<FocusSessionState> {
       plannedMinutes: state.plannedMinutes,
       exitChallengeLevel: state.exitChallengeLevel,
       commitmentText: state.commitmentText,
+      hasEverStarted: true,
     );
   }
 
@@ -143,10 +153,11 @@ class FocusController extends Notifier<FocusSessionState> {
     _recordSession(session, completed: false);
   }
 
-  /// 会话结束回到 idle，供 UI 在展示结果后调用
+  /// 会话结束回到 idle，供 UI 在展示结果后调用。
+  /// 保留 hasEverStarted，让 idle 弹回逻辑不再触发。
   void reset() {
     _ticker?.cancel();
-    state = const FocusSessionState();
+    state = FocusSessionState(hasEverStarted: state.hasEverStarted);
   }
 
   Future<void> _recordSession(FocusSessionState session,
