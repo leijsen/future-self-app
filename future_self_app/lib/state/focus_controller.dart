@@ -91,7 +91,7 @@ class FocusController extends Notifier<FocusSessionState> {
       hasEverStarted: true,
     );
     // 联动原生拦截：专注期间屏蔽所有启用中的分组（原生不可用时静默降级）
-    _safeCall((c) => c.enableFocusMode(_enabledGroupIds()));
+    _enabledGroupIds().then((ids) => _safeCall((c) => c.enableFocusMode(ids)));
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.remainingSeconds <= 0) {
         _complete();
@@ -102,10 +102,14 @@ class FocusController extends Notifier<FocusSessionState> {
     });
   }
 
-  List<String> _enabledGroupIds() {
-    // 从 Hive 恢复启用分组 id；文件晚于 focus_controller 初始化时可能为空，
-    // 此时原生侧 focus_blocked_groups 为空串 = 什么都不拦，可接受
-    return [];
+  Future<List<String>> _enabledGroupIds() async {
+    final box = await Hive.openBox('app_groups');
+    final enabled = box.get('enabled_group_ids') as List?;
+    if (enabled == null) {
+      // 未设置过限额页时按契约兜底：屏蔽短视频/短剧/游戏三类
+      return ['short_video', 'short_drama', 'game'];
+    }
+    return enabled.cast<String>();
   }
 
   Future<void> _safeCall(Future<void> Function(ScreenTimeControl) action) async {
