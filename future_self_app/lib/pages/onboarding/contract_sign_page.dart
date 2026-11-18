@@ -29,7 +29,7 @@ class _ContractSignPageState extends ConsumerState<ContractSignPage> {
     final controller = ref.read(onboardingProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('你的自律契约')),
+      appBar: AppBar(title: const Text('Your Discipline Contract')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -50,7 +50,7 @@ class _ContractSignPageState extends ConsumerState<ContractSignPage> {
             ),
           ),
           const SizedBox(height: 24),
-          Text('提前退出专注时，你对自己多狠？',
+          Text('How tough will you be on yourself when you exit focus early?',
               style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           for (final level in ExitChallengeLevel.values)
@@ -58,14 +58,14 @@ class _ContractSignPageState extends ConsumerState<ContractSignPage> {
               groupValue: state.exitChallengeLevel,
               onChanged: (v) => controller.setExitChallengeLevel(v!),
               child: RadioListTile<ExitChallengeLevel>(
-                title: Text('第 ${level.level} 档'),
+                title: Text('Level ${level.level}'),
                 subtitle: Text(level.description),
                 value: level,
               ),
             ),
           const SizedBox(height: 24),
           Text(
-            '签署后，这份契约会真正约束你的手机使用。修改契约需要 24 小时冷静期。',
+            'Once signed, this contract really does constrain your phone use. Changing it requires a 24-hour cooling-off period.',
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -78,7 +78,7 @@ class _ContractSignPageState extends ConsumerState<ContractSignPage> {
                     width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('我，签署这份契约'),
+                : const Text('I sign this contract'),
           ),
         ],
       ),

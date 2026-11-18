@@ -6,10 +6,10 @@ import android.view.accessibility.AccessibilityEvent
 import io.flutter.plugin.common.MethodChannel
 
 /**
- * 无障碍服务：监听前台应用切换。
- * 命中被限额/专注模式屏蔽的包名时，拉起拦截页（BlockedActivity）。
+ * Accessibility service: watches foreground app switches.
+ * When a limited / focus-blocked package comes to the front, launches the block page (BlockedActivity).
  *
- * 数据来源：MainActivity 写入的 SharedPreferences（limits / focus_mode）。
+ * Data source: SharedPreferences written by MainActivity (limits / focus_mode).
  */
 class OverlayAccessibilityService : android.accessibilityservice.AccessibilityService() {
 
@@ -45,11 +45,11 @@ class OverlayAccessibilityService : android.accessibilityservice.AccessibilitySe
         if (event == null) return
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
         val pkg = event.packageName?.toString() ?: return
-        if (pkg == packageName) return  // 自己的界面不拦
+        if (pkg == packageName) return  // never block our own UI
 
         val prefs = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-        // 专注模式：所有屏蔽组全拦
+        // Focus mode: block everything in the blocked groups
         if (prefs.getBoolean(FOCUS_KEY, false)) {
             val focusGroups = prefs.getString(FOCUS_GROUPS_KEY, "")!!.split(",").filter { it.isNotBlank() }
             val allBlocked = collectBlockedPackages(prefs, focusGroups)
@@ -59,14 +59,14 @@ class OverlayAccessibilityService : android.accessibilityservice.AccessibilitySe
             }
         }
 
-        // 日常限额：超时才拦（时长由 BlockedActivity 二次确认，见 shouldBlockForLimit）
+        // Daily limits: block only when over quota (BlockedActivity double-checks the duration, see shouldBlockForLimit)
         val limited = collectLimitedPackages(prefs)
         if (pkg in limited) {
             launchBlocked(pkg, "limit")
         }
     }
 
-    /** 解析 limits 字符串 → Map(pkg → groupId) */
+    /** Parse the limits string into Map(pkg -> groupId) */
     private fun collectLimitedPackages(prefs: android.content.SharedPreferences): Set<String> {
         val raw = prefs.getString(LIMITS_KEY, "") ?: return emptySet()
         val set = HashSet<String>()
@@ -99,7 +99,7 @@ class OverlayAccessibilityService : android.accessibilityservice.AccessibilitySe
     }
 
     private fun launchBlocked(pkg: String, reason: String) {
-        // 防抖：同一包 3 秒内不重复拉起
+        // Debounce: do not relaunch for the same package within 3s
         val now = System.currentTimeMillis()
         if (now - lastLaunchAt < 3000 && pkg == lastPkg) return
         lastLaunchAt = now

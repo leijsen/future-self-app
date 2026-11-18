@@ -18,8 +18,8 @@ class MainActivity : FlutterActivity() {
                     "probeCapability" -> result.success(probeCapability())
                     "getUsageReport" -> getUsageReport(call.argument<List<Map<String, Any>>>("groups"), result)
                     "setAppLimits" -> {
-                        // 限额由拦截服务读取：写入 SharedPreferences 供
-                        // OverlayAccessibilityService 使用
+                        // Limits are read by the blocking service: write SharedPreferences for
+                        // OverlayAccessibilityService to consume
                         val limits = call.argument<List<Map<String, Any>>>("limits") ?: emptyList()
                         saveLimits(limits)
                         result.success(null)

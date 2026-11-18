@@ -1,15 +1,15 @@
-// Cloudflare Workers Static Assets 配置
-// 让 `npx wrangler deploy` 知道静态文件在哪儿。
-// 产物由 scripts/cf_build.sh 编译生成。
+// Cloudflare Workers Static Assets configuration
+// Tells `npx wrangler deploy` where the static files live.
+// The build output is produced by scripts/cf_build.sh.
 {
   "name": "future-self",
   "compatibility_date": "2026-11-01",
 
   "assets": {
-    // Flutter Web 编译产物（相对仓库根目录）
+    // Flutter Web build output (relative to the repo root)
     "directory": "future_self_app/build/web",
 
-    // go_router 走 hash 路由（/#/home），单页回退足够
+    // go_router uses hash routing (/#/home), so SPA fallback is enough
     "not_found_handling": "single-page-application"
   }
 }

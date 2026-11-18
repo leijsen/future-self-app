@@ -2,15 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 
-/// 系统级使用控制的能力级别
+/// Capability levels for system-level usage control
 enum ControlCapability {
-  /// 第一层：系统级限制（Android 无障碍拦截 / iOS FamilyControls）
+  /// Tier 1: system-level enforcement (Android accessibility blocking / iOS FamilyControls)
   systemLevel,
 
-  /// 第二层：仅能统计使用时长（到时强提醒 + 劝导页）
+  /// Tier 2: usage statistics only (hard reminder plus a persuasion page when the limit is hit)
   statisticsOnly,
 
-  /// 第三层：什么都拿不到（仅应用内专注计时）
+  /// Tier 3: nothing available (in-app focus timer only)
   none,
 }
 
@@ -26,7 +26,7 @@ class AppGroupLimit {
   final String name;
   final int dailyLimitMinutes;
 
-  /// Android 包名列表（iOS 由 FamilyControls 托管，无需包名）
+  /// Android package names (iOS uses FamilyControls and needs none)
   final List<String> packageNames;
 }
 
@@ -50,10 +50,10 @@ class UsageReport {
   final List<GroupUsage> groups;
 }
 
-/// 平台无关的使用控制接口。
-/// 各平台通过 PlatformChannel 提供实现；不可用时走降级路径。
+/// Platform-agnostic usage-control interface.
+/// Each platform implements it over a PlatformChannel; falls back to a degraded path when unavailable.
 abstract class ScreenTimeControl {
-  /// 异步探测原生能力（MethodChannel 只能异步调用）
+  /// Probe native capability asynchronously (MethodChannel calls can only be async)
   Future<ControlCapability> probeCapability();
   Future<void> setAppLimits(List<AppGroupLimit> limits);
   Future<void> enableFocusMode(List<String> blockedGroupIds);
@@ -61,8 +61,8 @@ abstract class ScreenTimeControl {
   Future<UsageReport> getUsageReport();
 }
 
-/// MethodChannel 实现。原生侧未注册方法时抛 MissingPluginException，
-/// 视为无原生能力 → 降级。
+/// MethodChannel implementation. Throws MissingPluginException when the native side registers nothing,
+/// which counts as no native capability, so we degrade.
 class NativeScreenTimeControl implements ScreenTimeControl {
   static const _channel = MethodChannel('screen_time_control');
 
@@ -70,7 +70,7 @@ class NativeScreenTimeControl implements ScreenTimeControl {
   Future<ControlCapability> probeCapability() async {
     try {
       final level = await _channel.invokeMethod<int>('probeCapability');
-      // 原生侧返回 0=systemLevel 1=statisticsOnly 2=none
+      // Native side returns 0=systemLevel 1=statisticsOnly 2=none
       switch (level) {
         case 0:
           return ControlCapability.systemLevel;
@@ -127,7 +127,7 @@ class NativeScreenTimeControl implements ScreenTimeControl {
   }
 }
 
-/// 降级实现：无原生能力时（web / 模拟器），返回演示数据。
+/// Fallback implementation: returns demo data when no native capability exists (web / emulator).
 class LocalOnlyScreenTimeControl implements ScreenTimeControl {
   @override
   Future<ControlCapability> probeCapability() async =>
@@ -143,9 +143,9 @@ class LocalOnlyScreenTimeControl implements ScreenTimeControl {
       UsageReport(groups: _fakeReport());
 
   List<GroupUsage> _fakeReport() {
-    // Web 演示模式：返回静态示例数据，让 UI 可以完整演示
+    // Web demo mode: static sample data so the UI can be demonstrated end to end
     final now = DateTime.now();
-    // 用日期做伪随机种子，让每天的数据略有变化
+    // Seed with the day of the month so the numbers shift a little day to day
     final dayFactor = (now.day % 5) * 60;
     return [
       GroupUsage(groupId: 'short_video', usedSeconds: 1800 + dayFactor, limitSeconds: 3600),

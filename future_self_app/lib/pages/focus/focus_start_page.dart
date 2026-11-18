@@ -36,24 +36,24 @@ class _FocusStartPageState extends ConsumerState<FocusStartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('开始专注')),
+      appBar: AppBar(title: const Text('Start Focus')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('选择专注时长'),
+          const Text('Choose focus length'),
           const SizedBox(height: 12),
           FocusPresetSelector(
             selected: _selectedMinutes,
             onChanged: (m) => setState(() => _selectedMinutes = m),
           ),
           const SizedBox(height: 24),
-          const Text('这段时间你打算做什么？（可选，退出挑战时会看见）'),
+          const Text('What do you plan to do? (Optional - you will see it during the exit challenge)'),
           const SizedBox(height: 8),
           TextField(
             controller: _commitmentController,
             maxLines: 2,
             decoration: const InputDecoration(
-              hintText: '例如：背完第 3 单元单词',
+              hintText: 'e.g. finish memorizing Unit 3 vocabulary',
               border: OutlineInputBorder(),
             ),
           ),
@@ -61,7 +61,7 @@ class _FocusStartPageState extends ConsumerState<FocusStartPage> {
           FilledButton.icon(
             onPressed: _start,
             icon: const Icon(Icons.play_arrow),
-            label: Text('进入专注 · $_selectedMinutes 分钟'),
+            label: Text('Enter focus - $_selectedMinutes min'),
           ),
         ],
       ),

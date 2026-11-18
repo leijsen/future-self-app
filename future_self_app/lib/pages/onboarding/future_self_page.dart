@@ -19,13 +19,13 @@ class _FutureSelfPageState extends ConsumerState<FutureSelfPage> {
     final controller = ref.read(onboardingProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('未来的我 · 2/2')),
+      appBar: AppBar(title: const Text('Future Self - 2/2')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          const Text('现在，见见未来的自己。'),
+          const Text('Now, meet your future self.'),
           const SizedBox(height: 24),
-          Text('你想朝哪个方向发展？', style: _sectionTitle(context)),
+          Text('Which direction do you want to grow in?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -40,13 +40,13 @@ class _FutureSelfPageState extends ConsumerState<FutureSelfPage> {
             ],
           ),
           const SizedBox(height: 24),
-          Text('给自己多长时间？', style: _sectionTitle(context)),
+          Text('How long will you give yourself?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           SegmentedButton<int>(
             segments: const [
-              ButtonSegment(value: 90, label: Text('3 个月')),
-              ButtonSegment(value: 180, label: Text('半年')),
-              ButtonSegment(value: 365, label: Text('1 年')),
+              ButtonSegment(value: 90, label: Text('3 months')),
+              ButtonSegment(value: 180, label: Text('6 months')),
+              ButtonSegment(value: 365, label: Text('1 year')),
             ],
             selected: {_monthsFromNow(state.targetDate)},
             onSelectionChanged: (months) => controller.setTargetDate(
@@ -54,10 +54,10 @@ class _FutureSelfPageState extends ConsumerState<FutureSelfPage> {
             ),
           ),
           const SizedBox(height: 24),
-          Text('每天愿意投入多少专注时间？', style: _sectionTitle(context)),
+          Text('How much focus time will you commit to each day?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           Text(
-            '${state.committedFocusMinutes} 分钟',
+            '${state.committedFocusMinutes} min',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Slider(
@@ -65,7 +65,7 @@ class _FutureSelfPageState extends ConsumerState<FutureSelfPage> {
             min: 15,
             max: 240,
             divisions: 15,
-            label: '${state.committedFocusMinutes} 分钟',
+            label: '${state.committedFocusMinutes} min',
             onChanged: (v) => controller.setCommittedFocusMinutes(v.round()),
           ),
           const SizedBox(height: 32),
@@ -73,7 +73,7 @@ class _FutureSelfPageState extends ConsumerState<FutureSelfPage> {
             onPressed: state.direction == null
                 ? null
                 : () => context.go('/onboarding/contract'),
-            child: const Text('生成我的自律契约'),
+            child: const Text('Generate my contract'),
           ),
         ],
       ),

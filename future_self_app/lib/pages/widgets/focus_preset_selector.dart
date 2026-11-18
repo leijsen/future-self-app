@@ -17,8 +17,8 @@ class FocusPresetSelector extends StatelessWidget {
     return SegmentedButton<int>(
       segments: [
         for (final m in _presets)
-          ButtonSegment(value: m, label: Text('$m 分钟')),
-        const ButtonSegment(value: -1, label: Text('自定义')),
+          ButtonSegment(value: m, label: Text('$m min')),
+        const ButtonSegment(value: -1, label: Text('Custom')),
       ],
       selected: {_presets.contains(selected) ? selected : -1},
       onSelectionChanged: (selection) {

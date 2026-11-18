@@ -1,28 +1,28 @@
 enum PersonalityTag {
-  procrastination('拖延'),
-  easilyDistracted('易分心'),
-  threeMinutePassion('三分钟热度'),
-  nightOwl('晚睡强迫'),
-  revengeBedtime('报复性熬夜'),
-  socialDependency('社交依赖'),
-  impulsiveness('冲动消费'),
-  perfectionistDelay('完美主义拖延'),
-  anxiety('容易焦虑'),
-  phoneChecking('反复解锁手机');
+  procrastination('prone to procrastinating'),
+  easilyDistracted('easily distracted'),
+  threeMinutePassion('quick to lose interest'),
+  nightOwl('a night owl'),
+  revengeBedtime('stuck in revenge bedtime scrolling'),
+  socialDependency('overly reliant on social media'),
+  impulsiveness('an impulse spender'),
+  perfectionistDelay('a perfectionist who stalls'),
+  anxiety('prone to anxiety'),
+  phoneChecking('constantly unlocking the phone');
 
   const PersonalityTag(this.label);
   final String label;
 }
 
 enum BadHabit {
-  shortVideo('刷短视频'),
-  shortDrama('追短剧'),
-  lateNightGaming('熬夜打游戏'),
-  doomScrolling('无目的刷信息流'),
-  bingeWatching('追剧停不下来'),
-  endlessShopping('逛购物App'),
-  gossipReading('吃瓜不停'),
-  messageChecking('反复看消息');
+  shortVideo('scrolling short videos'),
+  shortDrama('binging short dramas'),
+  lateNightGaming('gaming late at night'),
+  doomScrolling('doomscrolling feeds'),
+  bingeWatching('unable to stop binge-watching'),
+  endlessShopping('endlessly browsing shopping apps'),
+  gossipReading('chasing gossip nonstop'),
+  messageChecking('checking messages over and over');
 
   const BadHabit(this.label);
   final String label;
@@ -41,12 +41,12 @@ class UserProfile {
 }
 
 enum GoalDirection {
-  certification('考证上岸'),
-  fitness('健身塑形'),
-  english('学英语'),
-  reading('读书积累'),
-  sideProject('做副业'),
-  skillLearning('学新技能');
+  certification('pass a certification exam'),
+  fitness('get in shape'),
+  english('learn English'),
+  reading('build a reading habit'),
+  sideProject('launch a side project'),
+  skillLearning('learn a new skill');
 
   const GoalDirection(this.label);
   final String label;
@@ -65,9 +65,9 @@ class FutureGoal {
 }
 
 enum ExitChallengeLevel {
-  gentle(1, '确认弹窗即可退出'),
-  firm(2, '输入一段自己写给自己的话'),
-  strict(3, '强制等待 60 秒倒计时');
+  gentle(1, 'Confirm in a dialog to exit'),
+  firm(2, 'Type the words you wrote to yourself'),
+  strict(3, 'Wait out a forced 60-second countdown');
 
   const ExitChallengeLevel(this.level, this.description);
   final int level;

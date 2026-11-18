@@ -27,7 +27,7 @@ class FutureSelfApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: '未来自我',
+      title: 'Future Self',
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
       routerConfig: router,
     );

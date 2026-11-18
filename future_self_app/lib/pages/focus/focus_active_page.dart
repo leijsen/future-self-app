@@ -12,8 +12,8 @@ class FocusActivePage extends ConsumerWidget {
     final state = ref.watch(focusProvider);
     final controller = ref.read(focusProvider.notifier);
 
-    // 会话已结束（完成/放弃）→ 记账后回首页（结果反馈由首页展示）
-    // 先于 idle 分支判断：reset() 会把状态归 idle，若 idle 分支在前会竞争导航
+    // Session ended (completed / abandoned) -> record it and return home (home shows the result)
+    // Check before the idle branch: reset() sets state to idle, so an earlier idle branch would race the navigation
     if (state.status == FocusStatus.completed ||
         state.status == FocusStatus.abandoned) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -23,8 +23,8 @@ class FocusActivePage extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    // 无进行中的会话且从未启动过（刷新页面后内存状态丢失）→ 弹回发起页，避免死页。
-    // hasEverStarted 防止与"会话结束跳首页"的导航竞争。
+    // No running session and none was ever started (memory state lost on refresh) -> bounce back to the start page to avoid a dead page.
+    // hasEverStarted prevents a race with the "session ended -> jump home" navigation.
     if (state.status == FocusStatus.idle && !state.hasEverStarted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go('/focus');
@@ -47,7 +47,7 @@ class FocusActivePage extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('专注中',
+                const Text('Focusing',
                     style: TextStyle(color: Colors.white70, fontSize: 16)),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -92,7 +92,7 @@ class FocusActivePage extends ConsumerWidget {
                 TextButton(
                   onPressed: () => _onExitPressed(context, ref, state),
                   child: const Text(
-                    '坚持不住，想提前退出',
+                    "I can't hold on - exit early",
                     style: TextStyle(color: Colors.white54),
                   ),
                 ),
@@ -110,10 +110,10 @@ class FocusActivePage extends ConsumerWidget {
     final allowed = controller.requestExit();
 
     if (allowed) {
-      return; // 第 1 档直接退出，状态变更后本页自动跳转
+      return; // Tier 1 exits directly; this page navigates itself after the state change
     }
 
-    // 第 2 档输入承诺文字 / 第 3 档强制倒计时，走 router 管理的挑战页
+    // Tier 2 asks for the commitment text / tier 3 forces a countdown; both go through the router-managed challenge page
     context.go('/focus/exit-challenge');
   }
 }

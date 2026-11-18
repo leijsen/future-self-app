@@ -11,11 +11,11 @@ import android.widget.LinearLayout
 import android.widget.TextView
 
 /**
- * 全屏拦截页：被限 App 切前台且额度已超时（或专注模式）时由
- * 无障碍服务拉起。展示被拦原因与契约提醒，提供"回来自律"按钮。
+ * Full-screen block page: launched by the accessibility service when a limited app
+ * comes to the front over quota (or during focus mode). Shows why it was blocked and a contract reminder.
  *
- * 限额情况下会先用 UsageStatsManager 复核当日真实使用时长，
- * 未超时不拦（无障碍事件本身不携带时长信息）。
+ * For daily limits it re-checks real usage time via UsageStatsManager first,
+ * and does not block when under quota (accessibility events carry no duration).
  */
 class BlockedActivity : Activity() {
 
@@ -30,7 +30,7 @@ class BlockedActivity : Activity() {
             val limitMinutes = findLimitMinutes(prefs, pkg)
             val usedSeconds = todayUsedSeconds(pkg)
             if (usedSeconds < limitMinutes * 60) {
-                finish()  // 额度未用完，误报，放行
+                finish()  // under quota - false alarm, let it through
                 return
             }
         }
@@ -45,7 +45,7 @@ class BlockedActivity : Activity() {
         }
 
         val title = TextView(this).apply {
-            text = if (reason == "focus") "专注模式进行中" else "今日额度已用完"
+            text = if (reason == "focus") "Focus mode is running" else "Today's quota is used up"
             textSize = 24f
             setTextColor(0xFFFFFFFF.toInt())
             gravity = Gravity.CENTER
@@ -53,10 +53,10 @@ class BlockedActivity : Activity() {
 
         val body = TextView(this).apply {
             text = if (reason == "focus") {
-                "这个 App 在你的专注名单里。\n回去继续，未来的你会感谢现在的你。"
+                "This app is on your focus block list.\nGo back and keep going - your future self will thank you."
             } else {
                 val m = todayUsedSeconds(pkg) / 60
-                "今天已经刷了 $m 分钟。\n这是你签契约时自己定的额度。"
+                "You have spent $m minutes on it today.\nThis is the quota you set for yourself when you signed."
             }
             textSize = 16f
             setTextColor(0xFFB8B8CC.toInt())
@@ -65,7 +65,7 @@ class BlockedActivity : Activity() {
         }
 
         val back = Button(this).apply {
-            text = "回来自律"
+            text = "Back to discipline"
             setOnClickListener { finish() }
         }
 

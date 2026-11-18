@@ -19,16 +19,16 @@ class _PastSelfPageState extends ConsumerState<PastSelfPage> {
     final controller = ref.read(onboardingProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('过去的我 · 1/2')),
+      appBar: AppBar(title: const Text('Past Self - 1/2')),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Text(
-            '先诚实面对过去的自己。\n这些都不会被任何人看到，只存放在你的手机里。',
+            'Be honest about who you have been.\nNo one else will ever see this; it stays on your phone.',
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
-          Text('你的性格里有这些吗？', style: _sectionTitle(context)),
+          Text('Do any of these describe you?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -43,7 +43,7 @@ class _PastSelfPageState extends ConsumerState<PastSelfPage> {
             ],
           ),
           const SizedBox(height: 24),
-          Text('哪些坏习惯在偷走你的时间？', style: _sectionTitle(context)),
+          Text('Which bad habits are stealing your time?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -58,10 +58,10 @@ class _PastSelfPageState extends ConsumerState<PastSelfPage> {
             ],
           ),
           const SizedBox(height: 24),
-          Text('你估计自己每天刷手机多久？', style: _sectionTitle(context)),
+          Text('Roughly how long are you on your phone each day?', style: _sectionTitle(context)),
           const SizedBox(height: 8),
           Text(
-            '${state.estimatedScreenMinutes ~/ 60} 小时 ${state.estimatedScreenMinutes % 60} 分钟',
+            '${state.estimatedScreenMinutes ~/ 60} h ${state.estimatedScreenMinutes % 60} min',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Slider(
@@ -69,13 +69,13 @@ class _PastSelfPageState extends ConsumerState<PastSelfPage> {
             min: 30,
             max: 600,
             divisions: 19,
-            label: '${state.estimatedScreenMinutes} 分钟',
+            label: '${state.estimatedScreenMinutes} min',
             onChanged: (v) => controller.setEstimatedScreenMinutes(v.round()),
           ),
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () => context.go('/onboarding/future'),
-            child: const Text('下一步：未来的我'),
+            child: const Text('Next: Future Self'),
           ),
         ],
       ),

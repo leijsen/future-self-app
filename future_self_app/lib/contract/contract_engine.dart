@@ -1,9 +1,9 @@
 import '../models/contract.dart';
 
 class ContractEngine {
-  /// 根据用户画像和目标生成契约规则。
-  /// 规则：分心类标签越多、娱乐类坏习惯越多，娱乐限额越紧；
-  /// 承诺专注时长直接采样，但设置娱乐限额下限保护休息需求。
+  /// Generate contract rules from the user profile and goal.
+  /// Rules: more distraction tags and entertainment habits tighten the entertainment limit;
+  /// the committed focus duration is used as-is, with a floor on the entertainment limit to protect rest.
   ContractRule generateRules(UserProfile profile, FutureGoal goal) {
     var entertainmentLimit = 90;
 
@@ -34,20 +34,20 @@ class ContractEngine {
 
   String generateSummary(UserProfile profile, FutureGoal goal, ContractRule rules) {
     final tagPart = profile.personalityTags.isEmpty
-        ? '一个想变得更好的人'
-        : '一个${profile.personalityTags.first.label}'
-        '${profile.personalityTags.length > 1 ? '、容易${profile.personalityTags[1].label}' : ''}的人';
+        ? 'a person who wants to get better'
+        : 'a person who is ${profile.personalityTags.first.label}'
+        '${profile.personalityTags.length > 1 ? ' and ${profile.personalityTags[1].label}' : ''}';
     final habitPart = profile.badHabits.isEmpty
         ? ''
-        : '，${profile.badHabits.first.label}是你的老对手';
+        : ', and ${profile.badHabits.first.label} is an old enemy of yours';
     final focusMin = rules.focusDailyMinimumMinutes;
     final limitMin = rules.entertainmentDailyLimitMinutes;
     final days = goal.targetDate.difference(DateTime.now()).inDays;
 
-    return '曾经$tagPart$habitPart。'
-        '而未来$days天后的你，要去「${goal.direction.label}」。'
-        '所以现在的你决定：每天专注至少 $focusMin 分钟，'
-        '娱乐 App 每天不超过 $limitMin 分钟。'
-        '这是你对过去的告别，也是对未来的承诺。';
+    return 'Once, you were $tagPart$habitPart. '
+        'And $days days from now, you want to reach "${goal.direction.label}". '
+        'So the you of today decides: focus for at least $focusMin minutes every day, '
+        'and spend no more than $limitMin minutes a day on entertainment apps. '
+        'This is your farewell to the past, and your promise to the future.';
   }
 }

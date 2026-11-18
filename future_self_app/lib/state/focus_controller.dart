@@ -23,14 +23,14 @@ class FocusSessionState {
   final DateTime? startedAt;
   final int? plannedMinutes;
 
-  /// 退出挑战进行中的截止时刻（第 3 档倒计时用）
+  /// Deadline for an in-progress exit challenge (used by the tier-3 countdown)
   final DateTime? challengeDeadline;
   final ExitChallengeLevel exitChallengeLevel;
   final String? commitmentText;
 
-  /// 本次 App 运行期间是否启动过会话。
-  /// 用于区分"从未启动（刷新后状态丢失）"与"会话结束后 reset 归零"，
-  /// 防止 idle 弹回逻辑劫持刚结束的会话跳转。
+  /// Whether a session has been started during this app run.
+  /// Distinguishes "never started (state lost on refresh)" from "reset to zero after a session ends",
+  /// so the idle-bounce logic cannot hijack the navigation of a just-finished session.
   final bool hasEverStarted;
 
   FocusSessionState copyWith({
@@ -53,7 +53,7 @@ class FocusSessionState {
     );
   }
 
-  /// 剩余秒数（基于 startedAt 与 plannedMinutes 推算，进程被杀也可恢复）
+  /// Seconds left (derived from startedAt and plannedMinutes, recoverable after process death)
   int get remainingSeconds {
     if (startedAt == null || plannedMinutes == null) return 0;
     final elapsed = DateTime.now().difference(startedAt!).inSeconds;
@@ -79,7 +79,7 @@ class FocusController extends Notifier<FocusSessionState> {
     return const FocusSessionState();
   }
 
-  /// 启动专注会话
+  /// Start a focus session
   void startSession(int minutes, ExitChallengeLevel level, String? commitment) {
     _ticker?.cancel();
     state = FocusSessionState(
@@ -90,13 +90,13 @@ class FocusController extends Notifier<FocusSessionState> {
       commitmentText: commitment,
       hasEverStarted: true,
     );
-    // 联动原生拦截：专注期间屏蔽所有启用中的分组（原生不可用时静默降级）
+    // Link to native blocking: block every enabled group during focus (silently degrades when native is unavailable)
     _enabledGroupIds().then((ids) => _safeCall((c) => c.enableFocusMode(ids)));
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (state.remainingSeconds <= 0) {
         _complete();
       } else {
-        // 触发重建以刷新倒计时显示
+        // Trigger a rebuild to refresh the countdown display
         state = state.copyWith();
       }
     });
@@ -106,7 +106,7 @@ class FocusController extends Notifier<FocusSessionState> {
     final box = await Hive.openBox('app_groups');
     final enabled = box.get('enabled_group_ids') as List?;
     if (enabled == null) {
-      // 未设置过限额页时按契约兜底：屏蔽短视频/短剧/游戏三类
+      // Fall back to the contract when the limits page was never configured: block short video / short drama / games
       return ['short_video', 'short_drama', 'game'];
     }
     return enabled.cast<String>();
@@ -116,7 +116,7 @@ class FocusController extends Notifier<FocusSessionState> {
     try {
       await action(ref.read(screenTimeControlProvider));
     } catch (_) {
-      // 原生未注册（web/模拟器）——静默降级
+      // Native side unregistered (web/emulator) - silently degrade
     }
   }
 
@@ -128,7 +128,7 @@ class FocusController extends Notifier<FocusSessionState> {
     _recordSession(finished, completed: true);
   }
 
-  /// 用户尝试提前退出 —— 返回是否被允许立即退出
+  /// The user tries to exit early - returns whether immediate exit is allowed
   bool requestExit() {
     if (state.status != FocusStatus.running) return true;
 
@@ -137,10 +137,10 @@ class FocusController extends Notifier<FocusSessionState> {
         _abandon();
         return true;
       case ExitChallengeLevel.firm:
-        // 第 2 档：需要输入承诺文字，由 UI 层调用 confirmExitWithText
+        // Tier 2: requires the commitment text; the UI calls confirmExitWithText
         return false;
       case ExitChallengeLevel.strict:
-        // 第 3 档：进入 60 秒强制倒计时，由 confirmExitAfterCountdown 结束
+        // Tier 3: enter the forced 60-second countdown, ended by confirmExitAfterCountdown
         state = state.copyWith(
           challengeDeadline: DateTime.now().add(const Duration(seconds: 60)),
         );
@@ -148,10 +148,10 @@ class FocusController extends Notifier<FocusSessionState> {
     }
   }
 
-  /// 第 2 档：输入了自己写的承诺文字后允许退出
+  /// Tier 2: exit is allowed once the self-written commitment text is entered
   void confirmExitWithText() => _abandon();
 
-  /// 第 3 档：倒计时结束后允许退出
+  /// Tier 3: exit is allowed after the countdown ends
   void confirmExitAfterCountdown() {
     if (state.challengeRemaining > Duration.zero) return;
     _abandon();
@@ -176,8 +176,8 @@ class FocusController extends Notifier<FocusSessionState> {
     _recordSession(session, completed: false);
   }
 
-  /// 会话结束回到 idle，供 UI 在展示结果后调用。
-  /// 保留 hasEverStarted，让 idle 弹回逻辑不再触发。
+  /// Return to idle once the session ends; called by the UI after showing the result.
+  /// Keeps hasEverStarted so the idle-bounce logic no longer fires.
   void reset() {
     _ticker?.cancel();
     state = FocusSessionState(hasEverStarted: state.hasEverStarted);

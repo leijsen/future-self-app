@@ -7,9 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../models/contract.dart';
 import '../../state/focus_controller.dart';
 
-/// 提前退出挑战页：
-/// 第 2 档（firm）→ 要求输入自己签署契约时写给自己的话；
-/// 第 3 档（strict）→ 强制 60 秒倒计时，结束后才出现退出按钮。
+/// Early exit challenge page:
+/// Tier 2 (firm) -> requires the words the user wrote when signing the contract;
+/// Tier 3 (strict) -> forces a 60-second countdown; the exit button appears only after it ends.
 class ExitChallengePage extends ConsumerStatefulWidget {
   const ExitChallengePage({super.key});
 
@@ -27,8 +27,8 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
     super.initState();
     final state = ref.read(focusProvider);
     _requiredText = state.exitChallengeLevel == ExitChallengeLevel.strict
-        ? '我要对自己负责'
-        : '我要对自己的未来负责';
+        ? 'I will take responsibility for myself'
+        : 'I will take responsibility for my future';
     if (state.exitChallengeLevel == ExitChallengeLevel.strict) {
       _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
         if (ref.read(focusProvider).challengeRemaining <= Duration.zero) {
@@ -49,7 +49,7 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
   }
 
   void _giveUpExit() {
-    // 用户认输放弃退出 → 关闭挑战页回去继续专注
+    // The user gives up on exiting -> close the challenge page and keep focusing
     ref.read(focusProvider.notifier).cancelChallenge();
     context.go('/focus/active');
   }
@@ -60,7 +60,7 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
     final isStrict = state.exitChallengeLevel == ExitChallengeLevel.strict;
     final countdownDone = state.challengeRemaining <= Duration.zero;
 
-    // 会话已放弃 → 回首页（由 FocusActivePage 的 SnackBar 提示结果）
+    // Session abandoned -> return home (FocusActivePage shows the result in a SnackBar)
     if (state.status == FocusStatus.abandoned ||
         state.status == FocusStatus.idle) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -75,11 +75,11 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
         backgroundColor: Colors.grey.shade900,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text('真的要放弃吗？'),
+          title: const Text('Really give up?'),
           actions: [
             TextButton(
               onPressed: _giveUpExit,
-              child: const Text('继续专注', style: TextStyle(color: Colors.white70)),
+              child: const Text('Keep focusing', style: TextStyle(color: Colors.white70)),
             ),
           ],
         ),
@@ -91,7 +91,7 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
               children: [
                 if (state.commitmentText?.isNotEmpty == true) ...[
                   Text(
-                    '你开始前写下的话：\n「${state.commitmentText}」',
+                    'What you wrote before you started:\n"${state.commitmentText}"',
                     style: const TextStyle(color: Colors.white70, fontSize: 16, height: 1.6),
                   ),
                   const SizedBox(height: 24),
@@ -99,8 +99,8 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
                 if (isStrict) ...[
                   Text(
                     countdownDone
-                        ? '60 秒已过。现在退出，今天的专注将中断。'
-                        : '冷静倒计时 ${state.challengeRemaining.inSeconds} 秒。\n倒数结束前，退出按钮不会出现。',
+                        ? "60 seconds have passed. Exiting now will interrupt today's focus."
+                        : 'Cool-down: ${state.challengeRemaining.inSeconds}s left.\nThe exit button stays hidden until the countdown ends.',
                     style: TextStyle(
                       color: countdownDone ? Colors.white : Colors.amber,
                       fontSize: 18,
@@ -112,11 +112,11 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
                     FilledButton(
                       onPressed: () =>
                           ref.read(focusProvider.notifier).confirmExitAfterCountdown(),
-                      child: const Text('确认退出'),
+                      child: const Text('Confirm exit'),
                     ),
                 ] else ...[
                   Text(
-                    '输入「$_requiredText」即可退出。\n这是你签约时为自己设下的关卡。',
+                    'Type "$_requiredText" to exit.\nThis is the gate you set for yourself when you signed.',
                     style: const TextStyle(color: Colors.white70, fontSize: 18, height: 1.6),
                   ),
                   const SizedBox(height: 24),
@@ -137,14 +137,14 @@ class _ExitChallengePageState extends ConsumerState<ExitChallengePage> {
                         ? () =>
                             ref.read(focusProvider.notifier).confirmExitWithText()
                         : null,
-                    child: const Text('确认退出'),
+                    child: const Text('Confirm exit'),
                   ),
                 ],
                 const Spacer(),
                 TextButton(
                   onPressed: _giveUpExit,
                   child: const Text(
-                    '算了，我再撑一会儿',
+                    "Never mind, I'll hold on a bit longer",
                     style: TextStyle(color: Colors.white54),
                   ),
                 ),

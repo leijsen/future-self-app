@@ -4,46 +4,46 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../platform/screen_time_control.dart';
 
-/// 内置分组模板（常见国内娱乐应用包名）
+/// Built-in group templates (package names of common entertainment apps)
 const _presetGroups = <AppGroupLimit>[
   AppGroupLimit(
     groupId: 'short_video',
-    name: '短视频',
+    name: 'Short video',
     dailyLimitMinutes: 30,
     packageNames: [
-      'com.smile.gifmaker',       // 快手
-      'com.ss.android.ugc.aweme', // 抖音
-      'com.tencent.weishi',       // 微视
-      'xyz.appmaker.douyin',      // 抖音火山版
+      'com.smile.gifmaker',       // Kuaishou
+      'com.ss.android.ugc.aweme', // Douyin
+      'com.tencent.weishi',       // Weishi
+      'xyz.appmaker.douyin',      // Douyin Huoshan
     ],
   ),
   AppGroupLimit(
     groupId: 'short_drama',
-    name: '短剧',
+    name: 'Short drama',
     dailyLimitMinutes: 20,
     packageNames: [
-      'com.dragon.read',          // 番茄小说(含短剧)
-      'com.kuaishou.nebula',      // 红果短剧
+      'com.dragon.read',          // Fanqie Novel (includes short dramas)
+      'com.kuaishou.nebula',      // Hongguo Short Drama
     ],
   ),
   AppGroupLimit(
     groupId: 'game',
-    name: '游戏',
+    name: 'Games',
     dailyLimitMinutes: 40,
     packageNames: [
-      'com.tencent.tmgp.sgame',      // 王者荣耀
-      'com.tencent.tmgp.pubgmhd',    // 和平精英
-      'com.netease.dwrg',            // 蛋仔派对
+      'com.tencent.tmgp.sgame',      // Honor of Kings
+      'com.tencent.tmgp.pubgmhd',    // Peacekeeper Elite
+      'com.netease.dwrg',            // Eggy Party
     ],
   ),
   AppGroupLimit(
     groupId: 'social',
-    name: '社交娱乐',
+    name: 'Social',
     dailyLimitMinutes: 60,
     packageNames: [
-      'com.tencent.mm',   // 微信
-      'com.xingin.xhs',   // 小红书
-      'com.sina.weibo',   // 微博
+      'com.tencent.mm',   // WeChat
+      'com.xingin.xhs',   // Xiaohongshu
+      'com.sina.weibo',   // Weibo
       'com.tencent.mobileqq', // QQ
     ],
   ),
@@ -136,7 +136,7 @@ class LimitsPage extends ConsumerWidget {
     final controller = ref.read(appGroupsProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('应用限额')),
+      appBar: AppBar(title: const Text('App Limits')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -147,8 +147,8 @@ class LimitsPage extends ConsumerWidget {
                   children: [
                     SwitchListTile(
                       title: Text(g.name),
-                      subtitle: Text('每日 ${g.dailyLimitMinutes} 分钟 · '
-                          '${g.packageNames.length} 个应用'),
+                      subtitle: Text('${g.dailyLimitMinutes} min/day · '
+                          '${g.packageNames.length} apps'),
                       value: g.enabled,
                       onChanged: (v) => controller.toggleGroup(g.groupId, v),
                     ),
@@ -158,7 +158,7 @@ class LimitsPage extends ConsumerWidget {
                         min: 10,
                         max: 180,
                         divisions: 17,
-                        label: '${g.dailyLimitMinutes} 分钟',
+                        label: '${g.dailyLimitMinutes} min',
                         onChanged: (v) =>
                             controller.updateLimit(g.groupId, v.round()),
                       ),
@@ -168,7 +168,7 @@ class LimitsPage extends ConsumerWidget {
             const SizedBox(height: 8),
           ],
           const Text(
-            '提示：包名列表为预设模板，可在 M3 迭代中支持自定义添加应用。',
+            'Note: the package list is a preset template. Custom app selection is planned for the M3 iteration.',
             style: TextStyle(color: Colors.grey),
           ),
         ],
