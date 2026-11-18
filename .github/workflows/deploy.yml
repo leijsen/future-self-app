@@ -1,0 +1,45 @@
+# 推送 main：构建 Flutter Web 并部署到 Cloudflare Pages
+# 构建放在 GitHub Actions（Flutter SDK 有缓存），不放在 Cloudflare 构建机上。
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # 允许在 Actions 页面手动触发
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: future_self_app
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true          # 关键：缓存 1.58GB SDK，只有首次下载
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build web
+        run: flutter build web --release
+
+      # wrangler-action 在仓库根目录执行，路径需带 future_self_app/ 前缀
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy future_self_app/build/web --project-name=future-self --branch=main
